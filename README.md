@@ -8,8 +8,7 @@ When running as a container it is required to pass a kubeconfig file to interact
 
 ## Prerequisites
 
-- The Kubernetes API used must be accessible from the location where this pod/
-container is running.
+- The Kubernetes API used must be accessible from the location where this pod/container is running.
 
 - In order to send metrics to CloudWatch it is required an user with credentials for that, more instructions on how to create this user here: [Create CloudWatch User](./cloudwatch-user.md)
 
