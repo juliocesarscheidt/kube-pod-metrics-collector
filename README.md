@@ -1,12 +1,25 @@
 # Kubernetes Job to collect and export pods metrics
 
+We are using the Kubernetes API to retrieve all the pods, then we iterate over them to check their statuses, and when the pod is failed, or pending for more than X minutes (the "X" minutes is an option passed through variable), we increment our metric of crashed pods by namespace, to send it later to CloudWatch as a custom metric where we could better analyse the information and create some alerts on it.
+
+When running as a pod inside a Kubernetes cluster, we are going to use a service account, that it will give a bearer token to call the Kubernetes API in a transparent fashion.
+
+When running as a container it is required to pass a kubeconfig file to interact with some cluster.
+
+## Instructions
+
+In order to send metrics to CloudWatch it is required an user with credentials for that, more instructions on how to create this user here: [Create CloudWatch User](./cloudwatch-user.md)
+
+> Running as container
+
 ```bash
-
+# build image
 docker image build -t juliocesarmidia/kube-pod-metrics-collector:v1.0.0 .
-docker image push juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
+# or pull from docker hub
+docker image pull juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
-# without send to cloudwatch
+# run without sending metrics to CloudWatch - dry run
 docker container run --rm -d \
   --name pod-metrics \
   --restart 'no' \
@@ -21,11 +34,11 @@ docker container run --rm -d \
   -v $HOME/.kube/config:/root/.kube/config \
   juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
+# logs and stats
 docker container logs -f pod-metrics
-
 docker stats pod-metrics
 
-# sending to cloudwatch
+# run sending metrics to CloudWatch (it requires AWS credentials)
 docker container run --rm -d \
   --name pod-metrics \
   --restart 'no' \
@@ -43,24 +56,14 @@ docker container run --rm -d \
   -v $HOME/.kube/config:/root/.kube/config \
   juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
+# clean up
 docker container rm -f pod-metrics
+```
 
+> Running inside Kubernetes as pod
 
-
-kubectl run alpine -n default \
-  --restart Always \
-  --image alpine:null \
-  sleep infinity --dry-run -o yaml
-
-kubectl run alpine -n default \
-  --restart Always \
-  --image alpine:null \
-  sleep infinity
-
-kubectl delete pod/alpine -n default
-
-
-
+```bash
+# create a secret for CloudWatch sdk usage, with the AWS credentials
 kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Secret
@@ -73,36 +76,34 @@ data:
   AWS_DEFAULT_REGION: "$(echo -n "$AWS_DEFAULT_REGION" | base64 -w0)"
 EOF
 
+# check secret
 kubectl get secret/pod-metrics-secrets -n default -o yaml
 
-
+# create the pod
 kubectl apply -f pod.yaml
 
+# check pod execution
 kubectl get pod -l app=pod-metrics -n default
 kubectl top pod -l app=pod-metrics -n default
 
-
+# see logs
 kubectl logs -f -l app=pod-metrics -n default --tail 100
 
-kubectl logs -l app=pod-metrics -n default --tail 1000
-
-
+# command to execute "sh" inside the pod
 kubectl exec -it pod/pod-metrics -n default -- sh
 
+# calling the Kubernetes API inside the pod
 API_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 API_SERVER="https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT_HTTPS}"
 
 curl \
-  --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+  --cacert '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt' \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
   -H "Authorization: Bearer $API_TOKEN" \
   --url "${API_SERVER}/api"
 
-
 # clean up
 kubectl delete -f pod.yaml
-
 kubectl delete secret/pod-metrics-secrets -n default
-
 ```
