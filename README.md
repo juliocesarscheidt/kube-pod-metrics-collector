@@ -2,7 +2,8 @@
 
 ```bash
 
-docker image build -t juliocesarmidia/kube-pod-metrics-collector:latest .
+docker image build -t juliocesarmidia/kube-pod-metrics-collector:v1.0.0 .
+docker image push juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 
 # without send to cloudwatch
@@ -17,8 +18,10 @@ docker container run --rm -d \
   -e SEND_TO_CLOUDWATCH='0' \
   -e KUBECONFIG='/root/.kube/config' \
   -e KUBECONTEXT='kubernetes-admin@kubernetes' \
-  -v /root/.kube/config:/root/.kube/config \
-  juliocesarmidia/kube-pod-metrics-collector:latest
+  -v $HOME/.kube/config:/root/.kube/config \
+  juliocesarmidia/kube-pod-metrics-collector:v1.0.0
+
+docker container logs -f pod-metrics
 
 docker stats pod-metrics
 
@@ -41,10 +44,8 @@ docker container run --rm -d \
   -e AWS_DEFAULT_REGION \
   -e KUBECONFIG='/root/.kube/config' \
   -e KUBECONTEXT='kubernetes-admin@kubernetes' \
-  -v /root/.kube/config:/root/.kube/config \
-  juliocesarmidia/kube-pod-metrics-collector:latest
-
-docker container logs -f pod-metrics
+  -v $HOME/.kube/config:/root/.kube/config \
+  juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 docker container rm -f pod-metrics
 
@@ -76,9 +77,7 @@ data:
   AWS_DEFAULT_REGION: "$(echo -n "$AWS_DEFAULT_REGION" | base64 -w0)"
 EOF
 
-kubectl get secret/pod-metrics-secrets -n default
-
-kubectl delete secret/pod-metrics-secrets -n default
+kubectl get secret/pod-metrics-secrets -n default -o yaml
 
 
 kubectl apply -f pod.yaml
@@ -106,5 +105,7 @@ curl \
 
 
 kubectl delete -f pod.yaml
+
+kubectl delete secret/pod-metrics-secrets -n default
 
 ```

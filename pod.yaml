@@ -1,3 +1,15 @@
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: pod-metrics-secrets
+#   namespace: default
+# data:
+#   AWS_ACCESS_KEY_ID: ""
+#   AWS_SECRET_ACCESS_KEY: ""
+#   AWS_DEFAULT_REGION: ""
+
+# ---
+
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -13,7 +25,7 @@ metadata:
   name: pod-metrics-role
 rules:
 - apiGroups: [""]
-  resources: ["pods"]
+  resources: ["pods", "namespaces"]
   verbs: ["list", "watch", "get"]
 
 ---
@@ -31,18 +43,6 @@ subjects:
   name: pod-metrics-sa
   namespace: default
 
-# ---
-
-# apiVersion: v1
-# kind: Secret
-# metadata:
-#   name: pod-metrics-secrets
-#   namespace: default
-# data:
-#   AWS_ACCESS_KEY_ID: ""
-#   AWS_SECRET_ACCESS_KEY: ""
-#   AWS_DEFAULT_REGION: ""
-
 ---
 
 apiVersion: v1
@@ -55,7 +55,7 @@ metadata:
 spec:
   containers:
   - name: pod-metrics
-    image: juliocesarmidia/kube-pod-metrics-collector:latest
+    image: juliocesarmidia/kube-pod-metrics-collector:v1.0.0
     imagePullPolicy: Never
     resources:
       limits:

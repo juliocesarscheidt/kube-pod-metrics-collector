@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 
 from kubernetes_client import (
   get_kube_client,
-  list_pods
+  list_pods,
+  list_namespaces
 )
 from cloudwatch_client import (
   get_send_to_cloudwatch,
@@ -20,8 +21,6 @@ from config import (
 )
 
 def main():
-  print('Running job')
-
   ignore_namespaces = get_ignore_namespaces()
   pending_minutes_to_be_crashed = get_pending_minutes_to_be_crashed()
   send_to_cloudwatch = get_send_to_cloudwatch()
@@ -39,24 +38,29 @@ def main():
   print('now', now.isoformat())
 
   crashed_pods = {}
+
+  namespaces = list_namespaces(api_v1)
+  for ns in namespaces:
+    ns_name = ns.metadata.name
+    ns_name = ns_name[0].upper() + ns_name[1:].lower()
+    if ns.status.phase == 'Active' and not ns_name in crashed_pods:
+      if len(ignore_namespaces) <= 0 or not ns.metadata.name in ignore_namespaces:
+        crashed_pods[ns_name] = {'count': 0, 'pods': []}
+
   pods = list_pods(api_v1)
 
   for pod in pods:
-    if pod.metadata.namespace in ignore_namespaces:
+    if len(ignore_namespaces) > 0 and pod.metadata.namespace in ignore_namespaces:
       # Ignoring Namespace
       continue
 
     ns = pod.metadata.namespace
     ns = ns[0].upper() + ns[1:].lower()
 
-    if not ns in crashed_pods:
-      crashed_pods[ns] = {'count': 0, 'pods': []}
-
     # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
     # ['Pending', 'Running', 'Succeeded', 'Failed', 'Unknown']
     if pod.status.phase == 'Pending':
       pod.status.start_time = pod.status.start_time.replace(tzinfo=timezone.utc)
-      print('pod.status.start_time', pod.status.start_time.isoformat())
 
       print('Pod Name {} :: Pod IP {} :: Pod Phase {} :: Pod Start Time {} :: Host IP {} :: Pod Namespace'
         .format(pod.metadata.name, pod.status.pod_ip, pod.status.phase,

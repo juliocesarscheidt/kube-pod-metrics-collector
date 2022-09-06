@@ -51,3 +51,19 @@ def list_pods(api_v1, watch=False):
 
   except Exception as e:
     print(e)
+
+def list_namespaces(api_v1, watch=False):
+  try:
+    for attempt in Retrying(
+      stop=stop_after_attempt(3),
+      wait=wait_exponential()
+    ):
+      with attempt:
+        namespaces = api_v1.list_namespace(watch=watch)
+        return namespaces.items
+
+  except RetryError as e:
+    print(e)
+
+  except Exception as e:
+    print(e)
