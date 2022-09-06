@@ -36,6 +36,10 @@ def get_kube_client():
   api_v1 = client.CoreV1Api(client.ApiClient(configuration))
   return api_v1
 
+def get_cluster_name():
+  _, current_context = config.list_kube_config_contexts()
+  return current_context['name'] if 'name' in current_context else None
+
 def list_pods(api_v1, watch=False):
   try:
     for attempt in Retrying(

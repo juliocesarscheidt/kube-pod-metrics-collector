@@ -75,7 +75,7 @@ spec:
     - name: PENDING_MINS_TO_BE_CRASHED
       value: '5'
     - name: IGNORE_NAMESPACES
-      value: 'kube-system,kube-public,kube-node-lease'
+      value: 'kube-public,kube-node-lease'
     - name: SEND_TO_CLOUDWATCH
       value: '1'
     - name: CLOUDWATCH_METRIC_NAME

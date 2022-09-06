@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from kubernetes_client import (
   get_kube_client,
+  get_cluster_name,
   list_pods,
   list_namespaces
 )
@@ -30,6 +31,9 @@ def main():
   api_v1 = get_kube_client()
   if send_to_cloudwatch == True:
     client_cloudwatch = get_client_cloudwatch()
+
+  cluster_name = get_cluster_name()
+  print('cluster_name', cluster_name)
 
   now = datetime.utcnow()
   now = now.replace(tzinfo=timezone.utc)
@@ -90,8 +94,15 @@ def main():
   for ns in crashed_pods.keys():
     print('ns', ns, crashed_pods[ns])
     if send_to_cloudwatch == True:
+      dimensions = [{
+        'Name': 'Namespace',
+        'Value': ns
+      }, {
+        'Name': 'ClusterName',
+        'Value': cluster_name
+      }]
       put_metrics(client_cloudwatch, cloudwatch_metric_name,
-                  cloudwatch_metric_namespace, 'Namespace', ns,
+                  cloudwatch_metric_namespace, dimensions,
                   'Count', crashed_pods[ns]['count'])
       print('Sent to cloudwatch', ns)
 

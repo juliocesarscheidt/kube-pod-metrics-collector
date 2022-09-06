@@ -22,7 +22,7 @@ def get_client_cloudwatch():
   client_cloudwatch = boto3.client('cloudwatch', region_name=region)
   return client_cloudwatch
 
-def put_metrics(client_cloudwatch, metric_name, metric_namespace, dimension_name, dimension_value, unit, value):
+def put_metrics(client_cloudwatch, metric_name, metric_namespace, dimensions, unit, value):
   try:
     for attempt in Retrying(
       stop=stop_after_attempt(3),
@@ -33,10 +33,7 @@ def put_metrics(client_cloudwatch, metric_name, metric_namespace, dimension_name
           Namespace=metric_namespace,
           MetricData=[{
             'MetricName': metric_name,
-            'Dimensions': [{
-              'Name': dimension_name,
-              'Value': dimension_value
-            }],
+            'Dimensions': dimensions,
             'Unit': unit,
             'Value': value,
             # 'Timestamp': datetime().utcnow(),

@@ -14,10 +14,10 @@ docker container run --rm -d \
   -e RUNNING_IN_KUBERNETES='0' \
   -e SCHEDULE_SECONDS_INTERVAL='60' \
   -e PENDING_MINS_TO_BE_CRASHED='5' \
-  -e IGNORE_NAMESPACES='kube-system,kube-public,kube-node-lease' \
+  -e IGNORE_NAMESPACES='kube-public,kube-node-lease' \
   -e SEND_TO_CLOUDWATCH='0' \
   -e KUBECONFIG='/root/.kube/config' \
-  -e KUBECONTEXT='kubernetes-admin@kubernetes' \
+  -e KUBECONTEXT=$(kubectl config current-context) \
   -v $HOME/.kube/config:/root/.kube/config \
   juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
@@ -37,13 +37,13 @@ docker container run --rm -d \
   -e RUNNING_IN_KUBERNETES='0' \
   -e SCHEDULE_SECONDS_INTERVAL='60' \
   -e PENDING_MINS_TO_BE_CRASHED='5' \
-  -e IGNORE_NAMESPACES='kube-system,kube-public,kube-node-lease' \
+  -e IGNORE_NAMESPACES='kube-public,kube-node-lease' \
   -e SEND_TO_CLOUDWATCH='1' \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e AWS_DEFAULT_REGION \
   -e KUBECONFIG='/root/.kube/config' \
-  -e KUBECONTEXT='kubernetes-admin@kubernetes' \
+  -e KUBECONTEXT=$(kubectl config current-context) \
   -v $HOME/.kube/config:/root/.kube/config \
   juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 

@@ -16,6 +16,6 @@ def get_pending_minutes_to_be_crashed():
   return pending_minutes_to_be_crashed
 
 def get_ignore_namespaces():
-  # IGNORE_NAMESPACES => e.g. kube-system,kube-public,kube-node-lease - comma-separated string
+  # IGNORE_NAMESPACES => e.g. kube-public,kube-node-lease - comma-separated string
   ignore_namespaces = os.environ.get('IGNORE_NAMESPACES', '').split(',')
   return ignore_namespaces
