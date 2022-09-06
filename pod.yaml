@@ -26,7 +26,7 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: ["pods", "namespaces"]
-  verbs: ["list", "watch", "get"]
+  verbs: ["get", "list", "watch"]
 
 ---
 
