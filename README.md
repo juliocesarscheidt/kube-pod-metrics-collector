@@ -26,10 +26,6 @@ docker container logs -f pod-metrics
 docker stats pod-metrics
 
 # sending to cloudwatch
-export AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID"
-export AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY"
-export AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
-
 docker container run --rm -d \
   --name pod-metrics \
   --restart 'no' \
@@ -104,6 +100,7 @@ curl \
   --url "${API_SERVER}/api"
 
 
+# clean up
 kubectl delete -f pod.yaml
 
 kubectl delete secret/pod-metrics-secrets -n default

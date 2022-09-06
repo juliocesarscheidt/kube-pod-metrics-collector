@@ -68,6 +68,8 @@ spec:
     - secretRef:
         name: pod-metrics-secrets
     env:
+    - name: CLUSTER_NAME
+      value: 'kubernetes-admin@kubernetes'
     - name: RUNNING_IN_KUBERNETES
       value: '1'
     - name: SCHEDULE_SECONDS_INTERVAL

@@ -2,6 +2,7 @@ import os
 
 from kubernetes import client, config
 from tenacity import Retrying, RetryError, stop_after_attempt, wait_exponential
+from kubernetes.config.kube_config import KubeConfigLoader
 
 from config import get_running_in_kubernetes
 
@@ -17,9 +18,8 @@ def get_kubernetes_variables():
 
   return api_token, api_ca_cert, api_server
 
-def get_kube_client():
+def get_kube_config():
   running_in_kubernetes = get_running_in_kubernetes()
-
   if running_in_kubernetes == True:
     api_token, api_ca_cert, api_server = get_kubernetes_variables()
     configuration = client.Configuration()
@@ -32,13 +32,21 @@ def get_kube_client():
       config_file = os.environ.get('KUBECONFIG', '~/.kube/config'),
       context = os.environ.get('KUBECONTEXT', ''),
     )
+  return configuration
 
+def get_kube_client():
+  configuration = get_kube_config()
   api_v1 = client.CoreV1Api(client.ApiClient(configuration))
   return api_v1
 
 def get_cluster_name():
-  _, current_context = config.list_kube_config_contexts()
-  return current_context['name'] if 'name' in current_context else None
+  running_in_kubernetes = get_running_in_kubernetes()
+  if running_in_kubernetes == True:
+    cluster_name = os.environ.get('CLUSTER_NAME')
+    return cluster_name
+  else:
+    _, current_context = config.list_kube_config_contexts()
+    return current_context['name'] if 'name' in current_context else None
 
 def list_pods(api_v1, watch=False):
   try:
