@@ -1,4 +1,4 @@
-# Kubernetes Job to collect and export pods metrics
+# Kubernetes Job to collect and export crashed pods metrics
 
 We are using the Kubernetes API to retrieve all the pods, then we iterate over them to check their statuses, and when the pod is failed, or pending for more than X minutes (the "X" minutes is an option passed through variable), we increment our metric of crashed pods by namespace, to send it later to CloudWatch as a custom metric where we could better analyse the information and create some alerts on it.
 
@@ -6,9 +6,14 @@ When running as a pod inside a Kubernetes cluster, we are going to use a service
 
 When running as a container it is required to pass a kubeconfig file to interact with some cluster.
 
-## Instructions
+## Prerequisites
 
-In order to send metrics to CloudWatch it is required an user with credentials for that, more instructions on how to create this user here: [Create CloudWatch User](./cloudwatch-user.md)
+- The Kubernetes API used must be accessible from the location where this pod/
+container is running.
+
+- In order to send metrics to CloudWatch it is required an user with credentials for that, more instructions on how to create this user here: [Create CloudWatch User](./cloudwatch-user.md)
+
+## Instructions
 
 > Running as container
 
