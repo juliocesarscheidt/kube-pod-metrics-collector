@@ -13,11 +13,8 @@ metadata:
   name: pod-metrics-role
 rules:
 - apiGroups: [""]
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
+  resources: ["pods"]
+  verbs: ["list", "watch", "get"]
 
 ---
 
@@ -34,16 +31,17 @@ subjects:
   name: pod-metrics-sa
   namespace: default
 
----
+# ---
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: pod-metrics-secrets
-data:
-  AWS_ACCESS_KEY_ID: "="
-  AWS_SECRET_ACCESS_KEY: ""
-  AWS_DEFAULT_REGION: "c2EtZWFzdC0x" # sa-east-1
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: pod-metrics-secrets
+#   namespace: default
+# data:
+#   AWS_ACCESS_KEY_ID: ""
+#   AWS_SECRET_ACCESS_KEY: ""
+#   AWS_DEFAULT_REGION: ""
 
 ---
 
@@ -59,7 +57,13 @@ spec:
   - name: pod-metrics
     image: juliocesarmidia/kube-pod-metrics-collector:latest
     imagePullPolicy: Never
-    resources: {}
+    resources:
+      limits:
+        memory: 256Mi
+        cpu: 500m
+      requests:
+        memory: 128Mi
+        cpu: 250m
     envFrom:
     - secretRef:
         name: pod-metrics-secrets

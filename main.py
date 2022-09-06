@@ -2,22 +2,35 @@ import schedule
 
 from datetime import datetime, timezone
 
-from kubernetes_config import get_kube_client
+from kubernetes_client import (
+  get_kube_client,
+  list_pods
+)
 from cloudwatch_client import (
-  get_client_cloudwatch, put_metrics, get_cloudwatch_metric_name,
-  get_cloudwatch_metric_namespace
+  get_send_to_cloudwatch,
+  get_cloudwatch_metric_name,
+  get_cloudwatch_metric_namespace,
+  get_client_cloudwatch,
+  put_metrics
 )
 from config import (
-  get_schedule_seconds_interval, get_pending_minutes_to_be_crashed,
+  get_schedule_seconds_interval,
+  get_pending_minutes_to_be_crashed,
   get_ignore_namespaces
 )
 
 def main():
   print('Running job')
-  crashed_pods = {}
 
-  kube_client, api_v1 = get_kube_client()
-  client_cloudwatch = get_client_cloudwatch()
+  ignore_namespaces = get_ignore_namespaces()
+  pending_minutes_to_be_crashed = get_pending_minutes_to_be_crashed()
+  send_to_cloudwatch = get_send_to_cloudwatch()
+  cloudwatch_metric_name = get_cloudwatch_metric_name()
+  cloudwatch_metric_namespace = get_cloudwatch_metric_namespace()
+
+  api_v1 = get_kube_client()
+  if send_to_cloudwatch == True:
+    client_cloudwatch = get_client_cloudwatch()
 
   now = datetime.utcnow()
   now = now.replace(tzinfo=timezone.utc)
@@ -25,14 +38,19 @@ def main():
   print(now)
   print('now', now.isoformat())
 
-  pods = api_v1.list_pod_for_all_namespaces(watch=False)
-  for pod in pods.items:
-    if pod.metadata.namespace in get_ignore_namespaces():
-      print('Ignoring Namespace', pod.metadata.namespace)
+  crashed_pods = {}
+  pods = list_pods(api_v1)
+
+  for pod in pods:
+    if pod.metadata.namespace in ignore_namespaces:
+      # Ignoring Namespace
       continue
 
     ns = pod.metadata.namespace
     ns = ns[0].upper() + ns[1:].lower()
+
+    if not ns in crashed_pods:
+      crashed_pods[ns] = {'count': 0, 'pods': []}
 
     # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
     # ['Pending', 'Running', 'Succeeded', 'Failed', 'Unknown']
@@ -50,9 +68,7 @@ def main():
       diff_in_mins = (diff_in_secs / 60)
       print('diff_in_mins', diff_in_mins)
 
-      if diff_in_mins > get_pending_minutes_to_be_crashed():
-        if not ns in crashed_pods:
-          crashed_pods[ns] = {'count': 0, 'pods': []}
+      if diff_in_mins > pending_minutes_to_be_crashed:
         crashed_pods[ns]['count'] = crashed_pods[ns]['count'] + 1
         crashed_pods[ns]['pods'].append(pod.metadata.name)
 
@@ -64,22 +80,16 @@ def main():
         .format(pod.metadata.name, pod.status.pod_ip, pod.status.phase,
         pod.status.start_time.isoformat(), pod.status.host_ip, ns))
 
-      if not ns in crashed_pods:
-        crashed_pods[ns] = {'count': 0, 'pods': []}
       crashed_pods[ns]['count'] = crashed_pods[ns]['count'] + 1
       crashed_pods[ns]['pods'].append(pod.metadata.name)
 
-    else: # 'Running' 'Succeeded
-      if not ns in crashed_pods:
-        crashed_pods[ns] = {'count': 0, 'pods': []}
-
-  print('crashed_pods', crashed_pods)
-
   for ns in crashed_pods.keys():
     print('ns', ns, crashed_pods[ns])
-    response = put_metrics(client_cloudwatch, get_cloudwatch_metric_name(), get_cloudwatch_metric_namespace(),
-                          'Namespace', ns, 'Count', crashed_pods[ns]['count'])
-    print('response', response)
+    if send_to_cloudwatch == True:
+      put_metrics(client_cloudwatch, cloudwatch_metric_name,
+                  cloudwatch_metric_namespace, 'Namespace', ns,
+                  'Count', crashed_pods[ns]['count'])
+      print('Sent to cloudwatch', ns)
 
 if __name__ == '__main__':
   main()

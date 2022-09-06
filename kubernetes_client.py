@@ -1,6 +1,7 @@
 import os
 
 from kubernetes import client, config
+from tenacity import Retrying, RetryError, stop_after_attempt, wait_exponential
 
 from config import get_running_in_kubernetes
 
@@ -17,20 +18,36 @@ def get_kubernetes_variables():
   return api_token, api_ca_cert, api_server
 
 def get_kube_client():
-  if get_running_in_kubernetes() == True:
+  running_in_kubernetes = get_running_in_kubernetes()
+
+  if running_in_kubernetes == True:
     api_token, api_ca_cert, api_server = get_kubernetes_variables()
     configuration = client.Configuration()
     configuration.host = api_server
-    configuration.api_key = {'Authorization': 'Bearer ' + api_token}
+    configuration.api_key = {'authorization': 'Bearer ' + api_token}
     configuration.ssl_ca_cert = api_ca_cert
     configuration.verify_ssl = True
-
   else:
     configuration = config.load_kube_config(
       config_file = os.environ.get('KUBECONFIG', '~/.kube/config'),
       context = os.environ.get('KUBECONTEXT', ''),
     )
 
-  kube_client = client.ApiClient(configuration)
-  api_v1 = client.CoreV1Api(kube_client)
-  return kube_client, api_v1
+  api_v1 = client.CoreV1Api(client.ApiClient(configuration))
+  return api_v1
+
+def list_pods(api_v1, watch=False):
+  try:
+    for attempt in Retrying(
+      stop=stop_after_attempt(3),
+      wait=wait_exponential()
+    ):
+      with attempt:
+        pods = api_v1.list_pod_for_all_namespaces(watch=watch)
+        return pods.items
+
+  except RetryError as e:
+    print(e)
+
+  except Exception as e:
+    print(e)
