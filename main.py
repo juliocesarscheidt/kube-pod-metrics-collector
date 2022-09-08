@@ -1,6 +1,7 @@
 import schedule
 
 from datetime import datetime, timezone
+from threading import Thread
 
 from kubernetes_client import (
   get_kube_client,
@@ -23,7 +24,7 @@ from config import (
   get_error_statuses
 )
 
-def main():
+def execute():
   ignore_namespaces = get_ignore_namespaces()
   pending_minutes_to_be_crashed = get_pending_minutes_to_be_crashed()
   send_to_cloudwatch = get_send_to_cloudwatch()
@@ -126,6 +127,12 @@ def main():
                   cloudwatch_metric_namespace, dimensions,
                   'Count', crashed_pods[ns]['count'])
       print('Sent to cloudwatch', ns)
+
+def main():
+  threads = []
+  threads.append(Thread(target=execute, args=[]))
+  for t in threads:
+    t.start()
 
 if __name__ == '__main__':
   main()
