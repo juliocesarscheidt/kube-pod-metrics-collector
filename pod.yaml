@@ -56,14 +56,14 @@ spec:
   containers:
   - name: pod-metrics
     image: juliocesarmidia/kube-pod-metrics-collector:v1.0.0
-    imagePullPolicy: Never
+    imagePullPolicy: Always # Never IfNotPresent Always
     resources:
       limits:
-        memory: 256Mi
-        cpu: 500m
+        memory: 512Mi
+        cpu: 600m
       requests:
-        memory: 128Mi
-        cpu: 250m
+        memory: 256Mi
+        cpu: 300m
     envFrom:
     - secretRef:
         name: pod-metrics-secrets

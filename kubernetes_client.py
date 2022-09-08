@@ -79,3 +79,8 @@ def list_namespaces(api_v1, watch=False):
 
   except Exception as e:
     print(e)
+
+def print_pod_info(pod):
+  print('Pod Name {} :: Pod IP {} :: Pod Phase {} :: Pod Start Time {} :: Host IP {} :: Pod Namespace {}'
+        .format(pod.metadata.name, pod.status.pod_ip, pod.status.phase,
+        pod.status.start_time.isoformat(), pod.status.host_ip, pod.metadata.namespace))

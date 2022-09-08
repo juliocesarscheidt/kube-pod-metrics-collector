@@ -19,3 +19,10 @@ def get_ignore_namespaces():
   # IGNORE_NAMESPACES => e.g. kube-public,kube-node-lease - comma-separated string
   ignore_namespaces = os.environ.get('IGNORE_NAMESPACES', '').split(',')
   return ignore_namespaces
+
+def get_error_statuses():
+  error_statuses = ['ImagePull', 'ImagePullBackOff', 'InvalidImageName', 'ImageInspect', 'ImageNeverPull',
+                  'RegistryUnavailable', 'ContainerNotFound', 'RunInitContainer', 'RunContainer', 'KillContainer',
+                  'CrashLoopBackOff', 'VerifyNonRoot', 'CreatePodSandbox', 'ConfigPodSandbox', 'KillPodSandbox',
+                  'SetupNetwork', 'TeardownNetwork']
+  return error_statuses

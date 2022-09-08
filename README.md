@@ -91,7 +91,7 @@ kubectl get pod -l app=pod-metrics -n default
 kubectl top pod -l app=pod-metrics -n default
 
 # see logs
-kubectl logs -f -l app=pod-metrics -n default --tail 100
+kubectl logs -f -l app=pod-metrics -n default --tail 1000
 
 # command to execute "sh" inside the pod
 kubectl exec -it pod/pod-metrics -n default -- sh
