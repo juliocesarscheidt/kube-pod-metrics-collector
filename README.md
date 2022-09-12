@@ -80,8 +80,22 @@ data:
   AWS_DEFAULT_REGION: "$(echo -n "$AWS_DEFAULT_REGION" | base64 -w0)"
 EOF
 
-# check secret
+export CLUSTER_NAME=$(kubectl config current-context)
+
+# create a configmap for CloudWatch sdk usage, with the cluster name
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-metrics-configmap
+  namespace: default
+data:
+  CLUSTER_NAME: "$(echo -n "$CLUSTER_NAME")"
+EOF
+
+# check secret and cm
 kubectl get secret/pod-metrics-secrets -n default -o yaml
+kubectl get configmap/pod-metrics-configmap -n default -o yaml
 
 # create the pod
 kubectl apply -f pod.yaml
