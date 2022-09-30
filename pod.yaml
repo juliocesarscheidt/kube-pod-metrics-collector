@@ -75,7 +75,7 @@ spec:
     - name: SCHEDULE_SECONDS_INTERVAL
       value: '60'
     - name: PENDING_MINS_TO_BE_CRASHED
-      value: '5'
+      value: '1'
     - name: IGNORE_NAMESPACES
       value: 'kube-public,kube-node-lease'
     - name: SEND_TO_CLOUDWATCH
