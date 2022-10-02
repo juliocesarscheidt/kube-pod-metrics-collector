@@ -1,6 +1,6 @@
 trigger:
-- main
-- development
+  - main
+  - development
 
 pool: {}
 
@@ -11,62 +11,56 @@ variables:
 stages:
   - stage: CI
     jobs:
-    - job: Install
-      strategy:
-        matrix:
-          Python39:
-            python.version: '3.9'
-      steps:
-      - task: UsePythonVersion@0
-        inputs:
-          versionSpec: '$(python.version)'
-        displayName: 'Use Python $(python.version)'
-      # - script: |
-      #     python -m pip install --upgrade pip
-      #     pip install yamllint
-      #     yamllint pod.yaml
-      #   displayName: 'Linter for yaml files'
-      # - script: |
-      #     docker container run --rm \
-      #       --name pylint \
-      #       -v $PWD/src:/usr/src/app \
-      #       -w /usr/src/app \
-      #       --entrypoint "" \
-      #       cytopia/black:latest-0.2 sh -c "black --check -v ."
-      #   displayName: 'Linter for python files'
+      - job: Install
+        strategy:
+          matrix:
+            Python39:
+              python.version: '3.9'
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(python.version)'
+            displayName: 'Use Python $(python.version)'
+          - script: |
+              python -m pip install --upgrade pip
+              pip install yamllint
+              yamllint -d .yamllint.yaml .
+            displayName: 'Linter for yaml files'
+          - script: |
+              docker container run --rm \
+                --name pylint \
+                -v $PWD/src:/usr/src/app \
+                -w /usr/src/app \
+                --entrypoint "" \
+                cytopia/black:latest-0.2 sh -c "black --check -v ."
+            displayName: 'Linter for python files'
 
-    - job: Prepare
-      dependsOn: Install
-      steps:
-      - bash: |
-          COMMIT_HASH=$(git rev-parse --short=7 HEAD)
-          echo "##vso[task.setvariable variable=COMMIT_HASH;isoutput=true]$COMMIT_HASH"
-        displayName: 'commitHashOutput'
-        name: 'commitHashOutput'
-      - bash: |
-          echo "$(COMMIT_HASH)"
-        displayName: 'bash'
+      - job: Prepare
+        dependsOn: Install
+        steps:
+          - bash: |
+              COMMIT_HASH=$(git rev-parse --short=7 HEAD)
+              echo "##vso[task.setvariable variable=COMMIT_HASH;isoutput=true]$COMMIT_HASH"
+            displayName: 'commitHashOutput'
+            name: 'commitHashOutput'
 
-    - job: Build
-      dependsOn: Prepare
-      variables:
-        commitHash: $[ dependencies.Prepare.outputs['commitHashOutput.COMMIT_HASH'] ]
-      steps:
-      - task: Docker@2
-        displayName: Login to Docker Hub
-        inputs:
-          command: login
-          containerRegistry: $(dockerRegistryServiceConnection) # string. Container registry.
-      - bash: |
-          echo "$(commitHash)"
-        displayName: 'bash'
-      - task: Docker@2
-        displayName: Build and Push
-        inputs:
-          command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Default: buildAndPush
-          Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
-          buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
-          repository: '$(imageRepository)' # string. Container repository
-          tags: |
-            $(commitHash)
-            latest
+      - job: Build
+        dependsOn: Prepare
+        variables:
+          commitHash: $[ dependencies.Prepare.outputs['commitHashOutput.COMMIT_HASH'] ]
+        steps:
+          - task: Docker@2
+            displayName: Login to Docker Hub
+            inputs:
+              command: login
+              containerRegistry: $(dockerRegistryServiceConnection)
+          - task: Docker@2
+            displayName: Build and Push
+            inputs:
+              command: 'buildAndPush'
+              Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile'
+              buildContext: '$(Build.SourcesDirectory)/src'
+              repository: '$(imageRepository)'
+              tags: |
+                $(commitHash)
+                latest
