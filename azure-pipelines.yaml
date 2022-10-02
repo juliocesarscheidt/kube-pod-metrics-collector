@@ -44,6 +44,8 @@ stages:
         matrix:
           Python39:
             python.version: '3.9'
+      variables:
+        commitHash: '$(git rev-parse --short=7 HEAD)'
 
       steps:
       - task: Docker@2
@@ -54,14 +56,13 @@ stages:
 
       - task: Docker@2
         displayName: Build and Push
-        env:
-          COMMIT_HASH: '${{ git rev-parse --short=7 HEAD }}'
+
         inputs:
           command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Default: buildAndPush
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
           buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
           repository: '$(imageRepository)' # string. Container repository
-          tags: '$(COMMIT_HASH)'
+          tags: '${{ variables.commitHash }}'
           # tags: |
           #   $(Build.BuildId)
           #   latest
