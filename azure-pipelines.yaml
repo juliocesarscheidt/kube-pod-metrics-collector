@@ -1,0 +1,49 @@
+trigger:
+- main
+- development
+
+pool: {}
+
+variables: {}
+
+stages:
+  - stage: CI
+    jobs:
+    - job: Install
+      strategy:
+        matrix:
+          Python39:
+            python.version: '3.9'
+
+      steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+        displayName: 'Use Python $(python.version)'
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install yamllint
+          yamllint pod.yaml
+        displayName: 'Linter for yaml files'
+
+      - script: |
+          docker container run --rm \
+            --name pylint \
+            -v $PWD/src:/usr/src/app \
+            -w /usr/src/app \
+            --entrypoint "" \
+            cytopia/black:latest-0.2 sh -c "black --check -v ."
+        displayName: 'Linter for python files'
+
+    - job: Build
+      dependsOn: Install
+      strategy:
+        matrix:
+          Python39:
+            python.version: '3.9'
+
+      steps:
+      - script: |
+          pip install -r src/requirements.txt
+        displayName: 'Install'

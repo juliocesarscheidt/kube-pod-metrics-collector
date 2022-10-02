@@ -18,7 +18,7 @@ When running as a container it is required to pass a kubeconfig file to interact
 
 ```bash
 # build image
-docker image build -t juliocesarmidia/kube-pod-metrics-collector:v1.0.0 .
+docker image build -t juliocesarmidia/kube-pod-metrics-collector:v1.0.0 ./src
 
 # or pull from docker hub
 docker image pull juliocesarmidia/kube-pod-metrics-collector:v1.0.0
