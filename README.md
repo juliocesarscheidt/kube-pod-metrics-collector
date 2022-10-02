@@ -30,7 +30,7 @@ docker container run --rm -d \
   --network host \
   -e RUNNING_IN_KUBERNETES='0' \
   -e SCHEDULE_SECONDS_INTERVAL='60' \
-  -e PENDING_MINS_TO_BE_CRASHED='5' \
+  -e PENDING_MINS_TO_BE_CRASHED='1' \
   -e IGNORE_NAMESPACES='kube-public,kube-node-lease' \
   -e SEND_TO_CLOUDWATCH='0' \
   -e KUBECONFIG='/root/.kube/config' \
@@ -49,7 +49,7 @@ docker container run --rm -d \
   --network host \
   -e RUNNING_IN_KUBERNETES='0' \
   -e SCHEDULE_SECONDS_INTERVAL='60' \
-  -e PENDING_MINS_TO_BE_CRASHED='5' \
+  -e PENDING_MINS_TO_BE_CRASHED='1' \
   -e IGNORE_NAMESPACES='kube-public,kube-node-lease' \
   -e SEND_TO_CLOUDWATCH='1' \
   -e AWS_ACCESS_KEY_ID \
