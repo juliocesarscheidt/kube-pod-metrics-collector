@@ -18,10 +18,10 @@ When running as a container it is required to pass a kubeconfig file to interact
 
 ```bash
 # build image
-docker image build -t juliocesarmidia/kube-pod-metrics-collector:v1.0.0 ./src
+docker image build -t docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0 ./src
 
 # or pull from docker hub
-docker image pull juliocesarmidia/kube-pod-metrics-collector:v1.0.0
+docker image pull docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 # run without sending metrics to CloudWatch - dry run
 docker container run --rm -d \
@@ -36,7 +36,7 @@ docker container run --rm -d \
   -e KUBECONFIG='/root/.kube/config' \
   -e KUBECONTEXT=$(kubectl config current-context) \
   -v $HOME/.kube/config:/root/.kube/config \
-  juliocesarmidia/kube-pod-metrics-collector:v1.0.0
+  docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 # logs and stats
 docker container logs -f pod-metrics
@@ -58,7 +58,7 @@ docker container run --rm -d \
   -e KUBECONFIG='/root/.kube/config' \
   -e KUBECONTEXT=$(kubectl config current-context) \
   -v $HOME/.kube/config:/root/.kube/config \
-  juliocesarmidia/kube-pod-metrics-collector:v1.0.0
+  docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 # clean up
 docker container rm -f pod-metrics

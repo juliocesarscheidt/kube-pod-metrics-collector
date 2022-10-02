@@ -4,7 +4,9 @@ trigger:
 
 pool: {}
 
-variables: {}
+variables:
+  dockerRegistryServiceConnection: 'docker-hub-juliocesarmidia'
+  imageRepository: 'kube-pod-metrics-collector'
 
 stages:
   - stage: CI
@@ -28,6 +30,7 @@ stages:
         displayName: 'Linter for yaml files'
 
       - script: |
+          docker version
           docker container run --rm \
             --name pylint \
             -v $PWD/src:/usr/src/app \
@@ -44,6 +47,20 @@ stages:
             python.version: '3.9'
 
       steps:
-      - script: |
-          pip install -r src/requirements.txt
-        displayName: 'Install'
+      - task: Docker@2
+        displayName: Login to Docker Hub
+        inputs:
+          command: login
+          containerRegistry: $(dockerRegistryServiceConnection) # string. Container registry.
+
+      - task: Docker@2
+        displayName: Build and Push
+        inputs:
+          command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Required. Command. Default: buildAndPush.
+          Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Required when command = build || command = buildAndPush. Dockerfile. Default: **/Dockerfile.
+          buildContext: '$(Build.SourcesDirectory)/src' # string. Optional. Use when command = build || command = buildAndPush. Build context. Default: **.
+          repository: '$(imageRepository)' # string. Optional. Use when command != login && command != logout && command != start && command != stop. Container repository.
+          tags: |
+            $(Build.BuildId)
+            latest
+          # arguments: # string. Optional. Use when command != login && command != logout && command != buildAndPush. Arguments.

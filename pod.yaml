@@ -45,7 +45,7 @@ metadata:
 spec:
   containers:
     - name: pod-metrics
-      image: juliocesarmidia/kube-pod-metrics-collector:v1.0.0
+      image: docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
       imagePullPolicy: Always     # Never IfNotPresent Always
       resources:
         limits:
