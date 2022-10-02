@@ -48,13 +48,15 @@ stages:
     - job: Build
       dependsOn: Prepare
       variables:
-        commitHash: $[ dependencies.Prepare.outputs['commitHashOutput'] ]
+        commitHash: $[ dependencies.Prepare.result ]
       steps:
       - task: Docker@2
         displayName: Login to Docker Hub
         inputs:
           command: login
           containerRegistry: $(dockerRegistryServiceConnection) # string. Container registry.
+      - bash: |
+          echo $commitHash
       - task: Docker@2
         displayName: Build and Push
         inputs:
@@ -62,7 +64,7 @@ stages:
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
           buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
           repository: '$(imageRepository)' # string. Container repository
-          tags: '$(commitHash)'
+          tags: '$commitHash'
           # tags: |
           #   $(Build.BuildId)
           #   latest
