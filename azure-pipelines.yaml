@@ -45,7 +45,7 @@ stages:
           Python39:
             python.version: '3.9'
       variables:
-        commitHash: '$(git rev-parse --short=7 HEAD)'
+        commitHash: '$[git rev-parse --short=7 HEAD]'
 
       steps:
       - task: Docker@2
