@@ -40,13 +40,11 @@ stages:
       steps:
       - bash: |
           export COMMIT_HASH=$(git rev-parse --short=7 HEAD)
-          echo $COMMIT_HASH
           echo "##vso[task.setvariable variable=commitHash;isoutput=true]$COMMIT_HASH"
         displayName: 'commitHashOutput'
         name: 'commitHashOutput'
       - bash: |
-          echo $(setOutput.commitHash)
-          echo $COMMIT_HASH
+          echo $(commitHash)
         displayName: 'bash'
 
     - job: Build
@@ -61,6 +59,7 @@ stages:
           containerRegistry: $(dockerRegistryServiceConnection) # string. Container registry.
       - bash: |
           echo $commitHash
+          echo $(commitHash)
         displayName: 'bash'
       - task: Docker@2
         displayName: Build and Push
@@ -69,7 +68,7 @@ stages:
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
           buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
           repository: '$(imageRepository)' # string. Container repository
-          tags: '$commitHash'
+          tags: '$(commitHash)'
           # tags: |
           #   $(Build.BuildId)
           #   latest
