@@ -44,8 +44,6 @@ stages:
         matrix:
           Python39:
             python.version: '3.9'
-      variables:
-        COMMIT_HASH: $(git rev-parse --short=7 HEAD)
 
       steps:
       - task: Docker@2
@@ -56,14 +54,15 @@ stages:
 
       - task: Docker@2
         displayName: Build and Push
+        env:
+          COMMIT_HASH: $(git rev-parse --short=7 HEAD)
         inputs:
-          command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Required. Command. Default: buildAndPush.
-          Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Required when command = build || command = buildAndPush. Dockerfile. Default: **/Dockerfile.
-          buildContext: '$(Build.SourcesDirectory)/src' # string. Optional. Use when command = build || command = buildAndPush. Build context. Default: **.
-          repository: '$(imageRepository)' # string. Optional. Use when command != login && command != logout && command != start && command != stop. Container repository.
-          tags: $(COMMIT_HASH)
+          command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Default: buildAndPush
+          Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
+          buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
+          repository: '$(imageRepository)' # string. Container repository
+          tags: '$COMMIT_HASH'
           # tags: |
           #   $(Build.BuildId)
           #   latest
-
           # arguments: # string. Optional. Use when command != login && command != logout && command != buildAndPush. Arguments.
