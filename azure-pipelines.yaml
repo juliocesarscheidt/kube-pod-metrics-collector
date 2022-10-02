@@ -6,7 +6,7 @@ pool: {}
 
 variables:
   dockerRegistryServiceConnection: 'docker-hub-juliocesarmidia'
-  imageRepository: 'kube-pod-metrics-collector'
+  imageRepository: 'juliocesarmidia/kube-pod-metrics-collector'
 
 stages:
   - stage: CI
@@ -30,7 +30,6 @@ stages:
         displayName: 'Linter for yaml files'
 
       - script: |
-          docker version
           docker container run --rm \
             --name pylint \
             -v $PWD/src:/usr/src/app \
@@ -45,6 +44,8 @@ stages:
         matrix:
           Python39:
             python.version: '3.9'
+      variables:
+        COMMIT_HASH: '$(git rev-parse --short=7 $BUILD_SOURCEVERSION)'
 
       steps:
       - task: Docker@2
@@ -60,7 +61,9 @@ stages:
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Required when command = build || command = buildAndPush. Dockerfile. Default: **/Dockerfile.
           buildContext: '$(Build.SourcesDirectory)/src' # string. Optional. Use when command = build || command = buildAndPush. Build context. Default: **.
           repository: '$(imageRepository)' # string. Optional. Use when command != login && command != logout && command != start && command != stop. Container repository.
-          tags: |
-            $(Build.BuildId)
-            latest
+          tags: $(COMMIT_HASH)
+          # tags: |
+          #   $(Build.BuildId)
+          #   latest
+
           # arguments: # string. Optional. Use when command != login && command != logout && command != buildAndPush. Arguments.
