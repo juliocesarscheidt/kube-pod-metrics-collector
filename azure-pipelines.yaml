@@ -39,16 +39,18 @@ stages:
       dependsOn: Install
       steps:
       - bash: |
-          git rev-parse --short=7 HEAD
+          COMMIT_HASH=$(git rev-parse --short=7 HEAD)
+          echo $COMMIT_HASH
+          echo "##vso[task.setvariable variable=commitHash;isOutput=true]$COMMIT_HASH"
         displayName: 'commitHashOutput'
-      # - bash: |
-      #     echo "##vso[task.setvariable variable=commitHash;]foo"
-      #     echo "##vso[task.setvariable variable=commitHash;isOutput=true]servicename1"
+        name: 'commitHashOutput'
+      - bash: |
+          echo $(commitHash)
 
     - job: Build
       dependsOn: Prepare
       variables:
-        commitHash: $[ dependencies.Prepare.result ]
+        commitHash: $[ dependencies.Prepare.outputs['commitHashOutput.commitHash'] ]
       steps:
       - task: Docker@2
         displayName: Login to Docker Hub
