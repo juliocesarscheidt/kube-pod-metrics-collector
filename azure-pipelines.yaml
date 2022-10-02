@@ -45,7 +45,7 @@ stages:
           Python39:
             python.version: '3.9'
       variables:
-        COMMIT_HASH: '$(git rev-parse --short=7 $BUILD_SOURCEVERSION)'
+        COMMIT_HASH: $(git rev-parse --short=7 HEAD)
 
       steps:
       - task: Docker@2
