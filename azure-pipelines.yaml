@@ -61,7 +61,7 @@ stages:
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
           buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
           repository: '$(imageRepository)' # string. Container repository
-          tags: '$COMMIT_HASH'
+          tags: '${{COMMIT_HASH}}'
           # tags: |
           #   $(Build.BuildId)
           #   latest
