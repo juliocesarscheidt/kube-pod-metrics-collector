@@ -16,19 +16,16 @@ stages:
         matrix:
           Python39:
             python.version: '3.9'
-
       steps:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
         displayName: 'Use Python $(python.version)'
-
       - script: |
           python -m pip install --upgrade pip
           pip install yamllint
           yamllint pod.yaml
         displayName: 'Linter for yaml files'
-
       - script: |
           docker container run --rm \
             --name pylint \
@@ -38,31 +35,34 @@ stages:
             cytopia/black:latest-0.2 sh -c "black --check -v ."
         displayName: 'Linter for python files'
 
-    - job: Build
+    - job: Prepare
       dependsOn: Install
-      strategy:
-        matrix:
-          Python39:
-            python.version: '3.9'
-      variables:
-        commitHash: '$[git rev-parse --short=7 HEAD]'
+      steps:
+      - bash: |
+          git rev-parse --short=7 HEAD
+        displayName: 'commitHashOutput'
+      # - bash: |
+      #     echo "##vso[task.setvariable variable=commitHash;]foo"
+      #     echo "##vso[task.setvariable variable=commitHash;isOutput=true]servicename1"
 
+    - job: Build
+      dependsOn: Prepare
+      variables:
+        commitHash: $[ dependencies.Prepare.outputs['commitHashOutput'] ]
       steps:
       - task: Docker@2
         displayName: Login to Docker Hub
         inputs:
           command: login
           containerRegistry: $(dockerRegistryServiceConnection) # string. Container registry.
-
       - task: Docker@2
         displayName: Build and Push
-
         inputs:
           command: 'buildAndPush' # 'buildAndPush' | 'build' | 'push' | 'login' | 'logout' | 'start' | 'stop'. Default: buildAndPush
           Dockerfile: '$(Build.SourcesDirectory)/src/Dockerfile' # string. Default: **/Dockerfile
           buildContext: '$(Build.SourcesDirectory)/src' # string. Default: **
           repository: '$(imageRepository)' # string. Container repository
-          tags: '${{ variables.commitHash }}'
+          tags: '$(commitHash)'
           # tags: |
           #   $(Build.BuildId)
           #   latest
