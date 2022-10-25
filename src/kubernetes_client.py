@@ -87,7 +87,9 @@ def print_pod_info(pod):
             pod.metadata.name,
             pod.status.pod_ip,
             pod.status.phase,
-            pod.status.start_time.isoformat(),
+            pod.status.start_time.isoformat()
+            if pod.status.start_time is not None
+            else "",
             pod.status.host_ip,
             pod.metadata.namespace,
         )

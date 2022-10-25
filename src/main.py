@@ -66,26 +66,30 @@ def execute():
         ns = pod.metadata.namespace
         ns = ns[0].upper() + ns[1:].lower()
 
-        if not pod.status or pod.status.start_time is None:
-            print("pod failed", pod)
-            continue
-
-        # adjust timezone for start_time
-        pod.status.start_time = pod.status.start_time.replace(tzinfo=timezone.utc)
+        if pod.status.start_time is not None:
+            # adjust timezone for start_time
+            pod.status.start_time = pod.status.start_time.replace(tzinfo=timezone.utc)
 
         # https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#pod-phase
         # ['Pending', 'Running', 'Succeeded', 'Failed', 'Unknown']
         if pod.status.phase == "Pending":
             print_pod_info(pod)
 
-            diff = now - pod.status.start_time
-            diff_in_secs = diff.total_seconds()
-            print("diff_in_secs", diff_in_secs)
-            diff_in_mins = diff_in_secs / 60
-            print("diff_in_mins", diff_in_mins)
+            if pod.status.start_time is not None:
+                diff = now - pod.status.start_time
+                diff_in_secs = diff.total_seconds()
+                print("diff_in_secs", diff_in_secs)
+                diff_in_mins = diff_in_secs / 60
+                print("diff_in_mins", diff_in_mins)
 
-            # this pod is with the phase pending for more than the allowed minutes
-            if diff_in_mins > pending_minutes_to_be_crashed:
+                # this pod is with the phase pending for more than the allowed minutes
+                if diff_in_mins > pending_minutes_to_be_crashed:
+                    crashed_pods[ns]["count"] = crashed_pods[ns]["count"] + 1
+                    crashed_pods[ns]["pods"].append(pod.metadata.name)
+                    print("added to crashed pods", pod.metadata.name)
+
+            else:
+                print("pod start_time is None, adding to crashed_pods")
                 crashed_pods[ns]["count"] = crashed_pods[ns]["count"] + 1
                 crashed_pods[ns]["pods"].append(pod.metadata.name)
                 print("added to crashed pods", pod.metadata.name)
@@ -108,14 +112,21 @@ def execute():
                 ):
                     print_pod_info(pod)
 
-                    diff = now - pod.status.start_time
-                    diff_in_secs = diff.total_seconds()
-                    print("diff_in_secs", diff_in_secs)
-                    diff_in_mins = diff_in_secs / 60
-                    print("diff_in_mins", diff_in_mins)
+                    if pod.status.start_time is not None:
+                        diff = now - pod.status.start_time
+                        diff_in_secs = diff.total_seconds()
+                        print("diff_in_secs", diff_in_secs)
+                        diff_in_mins = diff_in_secs / 60
+                        print("diff_in_mins", diff_in_mins)
 
-                    # this pod is with the status waiting for more than the allowed minutes
-                    if diff_in_mins > pending_minutes_to_be_crashed:
+                        # this pod is with the status waiting for more than the allowed minutes
+                        if diff_in_mins > pending_minutes_to_be_crashed:
+                            crashed_pods[ns]["count"] = crashed_pods[ns]["count"] + 1
+                            crashed_pods[ns]["pods"].append(pod.metadata.name)
+                            print("added to crashed pods", pod.metadata.name)
+
+                    else:
+                        print("pod start_time is None, adding to crashed_pods")
                         crashed_pods[ns]["count"] = crashed_pods[ns]["count"] + 1
                         crashed_pods[ns]["pods"].append(pod.metadata.name)
                         print("added to crashed pods", pod.metadata.name)

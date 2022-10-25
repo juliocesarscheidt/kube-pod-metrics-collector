@@ -106,8 +106,7 @@ kubectl top pod -l app=pod-metrics -n default
 
 # see logs
 kubectl logs -f -l app=pod-metrics -n default --tail 1000
-kubectl logs -f pod/pod-metrics -n default --tail 1000
-kubectl logs -f deploy/pod-metrics -n amazon-cloudwatch --tail 1000 -c pod-metrics
+kubectl logs -f deploy/pod-metrics -n default --tail 1000 -c pod-metrics
 
 # command to execute "sh" inside the pod
 kubectl exec -it pod/pod-metrics -n default -- sh
