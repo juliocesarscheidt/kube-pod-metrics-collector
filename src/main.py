@@ -66,6 +66,10 @@ def execute():
         ns = pod.metadata.namespace
         ns = ns[0].upper() + ns[1:].lower()
 
+        if not pod.status or pod.status.start_time is None:
+            print("pod failed", pod)
+            continue
+
         # adjust timezone for start_time
         pod.status.start_time = pod.status.start_time.replace(tzinfo=timezone.utc)
 

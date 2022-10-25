@@ -98,7 +98,7 @@ kubectl get secret/pod-metrics-secrets -n default -o yaml
 kubectl get configmap/pod-metrics-configmap -n default -o yaml
 
 # create the pod
-kubectl apply -f pod.yaml
+kubectl apply -f deployment.yaml
 
 # check pod execution
 kubectl get pod -l app=pod-metrics -n default
@@ -107,6 +107,7 @@ kubectl top pod -l app=pod-metrics -n default
 # see logs
 kubectl logs -f -l app=pod-metrics -n default --tail 1000
 kubectl logs -f pod/pod-metrics -n default --tail 1000
+kubectl logs -f deploy/pod-metrics -n amazon-cloudwatch --tail 1000 -c pod-metrics
 
 # command to execute "sh" inside the pod
 kubectl exec -it pod/pod-metrics -n default -- sh
@@ -123,6 +124,6 @@ curl \
   --url "${API_SERVER}/api"
 
 # clean up
-kubectl delete -f pod.yaml
+kubectl delete -f deployment.yaml
 kubectl delete secret/pod-metrics-secrets -n default
 ```
