@@ -102,11 +102,12 @@ kubectl apply -f deployment.yaml
 
 # check pod execution
 kubectl get pod -l app=pod-metrics -n default
+kubectl describe pod -l app=pod-metrics -n default
 kubectl top pod -l app=pod-metrics -n default
 
 # see logs
-kubectl logs -f -l app=pod-metrics -n default --tail 1000
-kubectl logs -f deploy/pod-metrics -n default --tail 1000 -c pod-metrics
+kubectl logs -f -l app=pod-metrics -n default --tail 1000 --timestamps
+kubectl logs -f deploy/pod-metrics -n default --tail 1000 -c pod-metrics --timestamps
 
 # command to execute "sh" inside the pod
 kubectl exec -it pod/pod-metrics -n default -- sh
@@ -125,4 +126,5 @@ curl \
 # clean up
 kubectl delete -f deployment.yaml
 kubectl delete secret/pod-metrics-secrets -n default
+kubectl delete configmap/pod-metrics-configmap -n default
 ```
