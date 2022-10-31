@@ -90,7 +90,7 @@ metadata:
   name: pod-metrics-configmap
   namespace: default
 data:
-  CLUSTER_NAME: "$(echo -n "$CLUSTER_NAME")"
+  CLUSTER_NAME: "$CLUSTER_NAME"
 EOF
 
 # check secret and cm
