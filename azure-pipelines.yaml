@@ -27,12 +27,10 @@ stages:
               yamllint -d .yamllint.yaml .
             displayName: 'Linter for yaml files'
           - script: |
-              docker container run --rm \
-                --name pylint \
+              docker container run --rm --name pylint \
                 -v $PWD/src:/usr/src/app \
-                -w /usr/src/app \
-                --entrypoint "" \
-                cytopia/black:latest-0.2 sh -c "black --check -v ."
+                -w /usr/src/app --entrypoint "" \
+                cytopia/black:latest sh -c "black --check -v ."
             displayName: 'Linter for python files'
 
       - job: Prepare
