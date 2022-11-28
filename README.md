@@ -1,5 +1,5 @@
 <div align="center">
-  <span style="display: inline-block !important; vertical-align: super !important; font-size: 2em !important; font-weight: bold !important;">Kube Pod Metrics Collector</span> <img src="https://raw.githubusercontent.com/juliocesarscheidt/kube-pod-metrics-collector/main/images/logo.png" alt="Logo" height="40px"/>
+  <h1 display="inline-block" vertical-align="super">Kube Pod Metrics Collector</h1> <img src="https://raw.githubusercontent.com/juliocesarscheidt/kube-pod-metrics-collector/main/images/logo.png" alt="Logo" height="40px"/>
 </div>
 
 <div align="center">
