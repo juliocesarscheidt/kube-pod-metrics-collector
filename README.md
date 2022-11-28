@@ -8,10 +8,10 @@
   <a href="https://github.com/juliocesarscheidt/kube-pod-metrics-collector/blob/main/LICENSE">
     <img target="_blank" alt="GitHub License" src="https://img.shields.io/github/license/juliocesarscheidt/kube-pod-metrics-collector?logo=GitHub&style=flat-square">
   </a>
-  <a href="https://hub.docker.com/r/juliocesarscheidt/kube-pod-metrics-collector">
+  <a href="https://hub.docker.com/repository/docker/juliocesarmidia/kube-pod-metrics-collector">
     <img target="_blank" alt="Docker pulls" src="https://img.shields.io/docker/pulls/juliocesarmidia/kube-pod-metrics-collector?color=%23099cec&logo=Docker&style=flat-square">
   </a>
-  <a href="https://hub.docker.com/r/juliocesarscheidt/kube-pod-metrics-collector">
+  <a href="https://hub.docker.com/repository/docker/juliocesarmidia/kube-pod-metrics-collector">
     <img target="_blank" alt="Image size" src="https://img.shields.io/docker/image-size/juliocesarmidia/kube-pod-metrics-collector/latest?logo=Docker&style=flat-square">
   </a>
 </div>
