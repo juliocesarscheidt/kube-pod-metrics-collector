@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Kube Pod Metrics Collector</h1> <img src="https://raw.githubusercontent.com/juliocesarscheidt/kube-pod-metrics-collector/main/images/logo.png" alt="Logo" height="128px"/>
+  <h1 style="display: inline-block; vertical-align: super;">Kube Pod Metrics Collector</h1> <img src="https://raw.githubusercontent.com/juliocesarscheidt/kube-pod-metrics-collector/main/images/logo.png" alt="Logo" height="40px"/>
 </div>
 
 <div align="center">
@@ -13,6 +13,8 @@
     <img alt="Image size" src="https://img.shields.io/docker/image-size/juliocesarmidia/kube-pod-metrics-collector/latest?logo=Docker&style=flat-square">
   </a>
 </div>
+
+<hr>
 
 We are using the Kubernetes API to retrieve all the pods, then we iterate over them to check their statuses, and when the pod is failed, or pending for more than X minutes (the "X" minutes is an option passed through variable), we increment our metric of crashed pods by namespace, to send it later to CloudWatch as a custom metric where we could better analyse the information and create some alerts on it.
 
