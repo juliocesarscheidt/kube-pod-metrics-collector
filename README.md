@@ -16,7 +16,7 @@
   </a>
 </div>
 
----------------------------------------
+<br>
 
 We are using the Kubernetes API to retrieve all the pods, then we iterate over them to check their statuses, and when the pod is failed, or pending for more than X minutes (the "X" minutes is an option passed through variable), we increment our metric of crashed pods by namespace, to send it later to CloudWatch as a custom metric where we could better analyse the information and create some alerts on it.
 
