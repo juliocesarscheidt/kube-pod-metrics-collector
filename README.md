@@ -1,5 +1,17 @@
 # Kubernetes Job to collect and export crashed pods metrics
 
+<p align="center">
+  <a href="https://github.com/juliocesarscheidt/kube-pod-metrics-collector/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/juliocesarscheidt/kube-pod-metrics-collector?logo=GitHub&style=flat-square">
+  </a>
+  <a href="https://hub.docker.com/r/juliocesarscheidt/kube-pod-metrics-collector">
+    <img alt="Docker pulls" src="https://img.shields.io/docker/pulls/juliocesarmidia/kube-pod-metrics-collector?color=%23099cec&logo=Docker&style=flat-square">
+  </a>
+  <a href="https://hub.docker.com/r/juliocesarscheidt/kube-pod-metrics-collector">
+    <img alt="Image size" src="https://img.shields.io/docker/image-size/juliocesarmidia/kube-pod-metrics-collector/latest?logo=Docker&style=flat-square">
+  </a>
+</p>
+
 We are using the Kubernetes API to retrieve all the pods, then we iterate over them to check their statuses, and when the pod is failed, or pending for more than X minutes (the "X" minutes is an option passed through variable), we increment our metric of crashed pods by namespace, to send it later to CloudWatch as a custom metric where we could better analyse the information and create some alerts on it.
 
 When running as a pod inside a Kubernetes cluster, we are going to use a service account, that it will give a bearer token to call the Kubernetes API in a transparent fashion.
