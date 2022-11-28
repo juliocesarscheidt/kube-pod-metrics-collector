@@ -1,4 +1,4 @@
-# Kubernetes Job to collect and export crashed pods metrics
+# Kube Pod Metrics Collector ![Logo](./images/logo.png)
 
 <p align="center">
   <a href="https://github.com/juliocesarscheidt/kube-pod-metrics-collector/blob/main/LICENSE">
