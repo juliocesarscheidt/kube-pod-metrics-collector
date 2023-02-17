@@ -40,6 +40,8 @@ kind: Deployment
 metadata:
   name: pod-metrics
   namespace: default
+  labels:
+    app: pod-metrics
 spec:
   replicas: 1
   selector:
