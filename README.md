@@ -53,7 +53,7 @@ docker container run --rm -d \
   -e SEND_TO_CLOUDWATCH='0' \
   -e KUBECONFIG='/root/.kube/config' \
   -e KUBECONTEXT=$(kubectl config current-context) \
-  -v $HOME/.kube/config:/root/.kube/config \
+  -v $HOME/.kube/config:$HOME/.kube/config \
   docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
 
 # logs and stats
@@ -73,7 +73,7 @@ docker container run --rm -d \
   -e AWS_ACCESS_KEY_ID \
   -e AWS_SECRET_ACCESS_KEY \
   -e AWS_DEFAULT_REGION \
-  -e KUBECONFIG='/root/.kube/config' \
+  -e KUBECONFIG='$HOME/.kube/config' \
   -e KUBECONTEXT=$(kubectl config current-context) \
   -v $HOME/.kube/config:/root/.kube/config \
   docker.io/juliocesarmidia/kube-pod-metrics-collector:v1.0.0
@@ -115,7 +115,7 @@ EOF
 kubectl get secret/pod-metrics-secrets -n default -o yaml
 kubectl get configmap/pod-metrics-configmap -n default -o yaml
 
-# create the pod
+# create the deployment
 kubectl apply -f deployment.yaml
 
 # check pod execution
